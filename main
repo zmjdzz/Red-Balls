@@ -1,0 +1,47 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+using namespace std;
+using namespace cv;
+
+Mat srcImage, dstImage;//临时变量和目标图的定义
+Mat channel[3];
+
+int main()
+{
+	//载入原始图
+	srcImage = imread("3.jpg");
+	imshow("【原始图】", srcImage);
+
+	// 提取红色通道图像
+	int g_nHm = 9; // 可调节参数
+	split(srcImage, channel);//分离色彩通道
+	channel[0] = channel[0].mul(.1*g_nHm); // B    (mul: per-element matrix multiplication)
+	channel[1] = channel[1].mul(.1*g_nHm); // G
+	channel[2] = channel[2] - channel[0] - channel[1]; // R(减掉蓝色通道和绿色通道剩红色通道)
+	
+	
+	imshow("【灰度图】", channel[2]);
+	dstImage = channel[2];
+	GaussianBlur(dstImage, dstImage, Size(9, 9), 2, 2); // 用于减少检测噪声
+
+	// 霍夫圆检测
+	vector<Vec3f> circles; // 3通道float型向量
+	HoughCircles(dstImage, circles, CV_HOUGH_GRADIENT, 1, srcImage.rows / 14, 200, 16, 0, 0);
+
+	// 依次在图中绘制出圆
+	for (size_t i = 0; i < circles.size(); i++)
+	{
+		//参数定义
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+		int radius = cvRound(circles[i][2]);
+
+		//绘制圆轮廓
+		circle(srcImage, center, radius, Scalar(255, 0, 0), 3, 8, 0);
+	}
+	
+	imshow("【效果图】", srcImage);
+	waitKey(0);
+
+	return 0;
+}
+
