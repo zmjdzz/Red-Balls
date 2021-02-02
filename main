@@ -13,13 +13,9 @@ int main()
 	imshow("【原始图】", srcImage);
 
 	// 提取红色通道图像
-	int g_nHm = 9; // 可调节参数
-	split(srcImage, channel);//分离色彩通道
-	channel[0] = channel[0].mul(.1*g_nHm); // B    (mul: per-element matrix multiplication)
-	channel[1] = channel[1].mul(.1*g_nHm); // G
-	channel[2] = channel[2] - channel[0] - channel[1]; // R(减掉蓝色通道和绿色通道剩红色通道)
-	
-	
+	split(srcImage, channel);
+	channel[2] = channel[2] - channel[1];
+
 	imshow("【灰度图】", channel[2]);
 	dstImage = channel[2];
 	GaussianBlur(dstImage, dstImage, Size(9, 9), 2, 2); // 用于减少检测噪声
@@ -38,10 +34,9 @@ int main()
 		//绘制圆轮廓
 		circle(srcImage, center, radius, Scalar(255, 0, 0), 3, 8, 0);
 	}
-	
+
 	imshow("【效果图】", srcImage);
 	waitKey(0);
 
 	return 0;
 }
-
